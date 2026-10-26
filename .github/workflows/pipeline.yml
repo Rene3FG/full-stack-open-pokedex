@@ -28,3 +28,15 @@ jobs:
         run: npx playwright install --with-deps chromium
       - name: E2E tests
         run: npm run test:e2e
+
+  deploy:
+    needs: [simple_deployment_pipeline]
+    if: ${{ github.event_name == 'push' }}
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Trigger deployment
+        run: |
+          curl --fail -X POST \
+            -H "Authorization: Bearer ${{ secrets.RENDER_API_KEY }}" \
+            -H "Content-Type: application/json" \
+            "https://api.render.com/v1/services/srv-${{ secrets.RENDER_SERVICE_ID }}/deploys"
