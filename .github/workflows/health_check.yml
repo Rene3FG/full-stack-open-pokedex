@@ -1,0 +1,22 @@
+name: Periodic health check
+
+on:
+  schedule:
+    - cron: '0 12 * * *'
+  workflow_dispatch:
+    inputs:
+      url:
+        description: 'URL a comprobar (vacío = la app en producción)'
+        required: false
+        default: ''
+
+jobs:
+  health_check:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Check the deployed service URL
+        run: |
+          URL="${{ github.event.inputs.url }}"
+          URL="${URL:-https://pokedex-8yeh.onrender.com/health}"
+          echo "Comprobando $URL"
+          curl --fail --silent --show-error --retry 3 --retry-delay 10 --max-time 90 "$URL"
